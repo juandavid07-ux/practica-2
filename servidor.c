@@ -1,4 +1,4 @@
-//Juan David Morocho Angulo / DNI: 48776944Q
+//Juan David Morocho Angulo
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
