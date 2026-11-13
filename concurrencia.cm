@@ -1,0 +1,100 @@
+#include "gdefs.cm"
+
+const int TAM_BUFFER = 5;
+const int TOTAL_ITEMS = 10;
+
+int buffer[5];
+int in = 0;
+int out = 0;
+int cuenta = 0;
+
+semaphore e;
+semaphore s;
+semaphore n;
+
+
+void iniciar_graficos() {
+    int i;
+    int pos_x;
+
+    create(10, CIRCLE, BLUE, 210, 40, 40, 40);
+
+    for (i = 0; i < TAM_BUFFER; i = i + 1) {
+        pos_x = 40 + (i * 80);
+
+        create(20 + i, RECTANGLE, BLACK, pos_x - 2, 130 - 2, 64, 64);
+
+        create(i + 1, RECTANGLE, WHITE, pos_x, 130, 60, 60);
+    }
+}
+
+void productor() {
+    int item;
+    int i;
+
+    for (i = 1; i <= TOTAL_ITEMS; i = i + 1) {
+
+        item = i * 10;
+
+        p(e);
+
+        p(s);
+
+        changecolor(10, GREEN);
+        buffer[in] = item;
+        changecolor(in + 1, GREEN);
+
+        in = (in + 1) % TAM_BUFFER;
+        cuenta = cuenta + 1;
+
+        v(s);
+
+        v(n);
+    }
+}
+
+
+void consumidor() {
+    int item;
+    int i;
+
+    for (i = 1; i <= TOTAL_ITEMS; i = i + 1) {
+        p(n);
+
+        p(s);
+
+        changecolor(10, RED);
+        item = buffer[out];
+        buffer[out] = 0;
+        changecolor(out + 1, WHITE);
+
+        out = (out + 1) % TAM_BUFFER;
+        cuenta = cuenta - 1;
+
+        v(s);
+
+        v(e);
+    }
+}
+
+
+main() {
+    int i;
+
+    initialsem(s, 1);
+    initialsem(n, 0);
+    initialsem(e, TAM_BUFFER);
+
+    for (i = 0; i < TAM_BUFFER; i = i + 1) {
+        buffer[i] = 0;
+    }
+
+    iniciar_graficos();
+
+    cobegin {
+        productor();
+        consumidor();
+    }
+
+    changecolor(10, BLUE);
+}
